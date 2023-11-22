@@ -16,7 +16,7 @@ from datetime import datetime  # datetime.now()将被替换
 from schedule import Scheduler
 
 import mocktime
-from examples.schedule.strategy import add_jobs
+from strategy import add_jobs
 
 # 修改日志级别，可观察`schedule`的日志，方便调试
 logging.basicConfig(format='%(asctime)s | %(levelname)-8s | %(filename)s:%(funcName)s:%(lineno)d - %(message)s')

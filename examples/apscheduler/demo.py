@@ -13,7 +13,7 @@ from apscheduler.schedulers.base import STATE_STOPPED
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 import mocktime
-from examples.apscheduler.strategy import add_jobs
+from strategy import add_jobs
 
 # 修改日志级别，可观察`apscheduler`的日志，方便调试
 logging.basicConfig(format='%(asctime)s | %(levelname)-8s | %(filename)s:%(funcName)s:%(lineno)d - %(message)s')

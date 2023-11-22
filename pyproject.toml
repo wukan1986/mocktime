@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mocktime"
+authors = [
+    { name = "wukan", email = "wu-kan@163.com" },
+]
+description = "patch to mock time and datetime"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["mock", "datetime", "apscheduler", "schedule"]
+license = { text = "BSD-3-Clause" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python"
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["mocktime"]
+
+[tool.setuptools.dynamic]
+version = { attr = "mocktime._version.__version__" }
