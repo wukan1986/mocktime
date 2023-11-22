@@ -4,58 +4,51 @@ _ = __version__
 
 # ==========================================
 # time.time patch
-
-import time as _time
-from datetime import datetime as _datetime_datetime
-
-# 是否伪造时间，默认只要导入就生效
-is_mock: bool = True
-
-_time_old = _time.time
-_t: float = 0.0
+import mocktime._time as _mocktime_time
+from mocktime._time import time_update, time_add, _offset_update
 
 
-def time_update(t) -> float:
-    global _t
-    if isinstance(t, _datetime_datetime):
-        _t = t.timestamp()
-        return _t
-    if isinstance(t, (int, float)):
-        _t = t
-        return _t
-    if t is None:
-        _t = _time.time()
-        return _t
-    if isinstance(t, tuple):
-        _t = _time.mktime(t)
-        return _t
+def configure(*, mock: bool = True, tick: bool = False):
+    """设置参数
+
+    Parameters
+    ----------
+    mock: bool
+        模拟时间
+    tick: bool
+        时间流逝
+
+    """
+    _mocktime_time.is_tick = tick
+    if tick:
+        _offset_update()
+        mock = True
+    _mocktime_time.is_mock = mock
 
 
-def time_add(t: float) -> float:
-    global _t
-    if t is not None:
-        _t += t
-    return _t
+def is_mock():
+    """是否模拟时间"""
+    return _mocktime_time.is_mock
 
 
-def _time_new() -> float:
-    return _t if is_mock else _time_old()
+def is_tick():
+    """是否时间流逝"""
+    return _mocktime_time.is_tick
 
-
-_time.time = _time_new
 
 # ==========================================
-# loguru._datetime patch must before datetime patch
+# loguru._datetime补丁一定要在datetime补丁之前
 try:
     from mocktime._loguru import *
 except ImportError:
     pass
+
 # ==========================================
-# datetime.datetime patch must after loguru patch
+# datetime.datetime补丁一定要在最后
 from mocktime._datetime import now
 
 # ==========================================
-# if loguru._datetime patch after datetime patch
+# 顺序乱了可能报错如下
 #
 #  File "site-packages\loguru\_datetime.py", line 90, in aware_now
 #     timestamp = now.timestamp()

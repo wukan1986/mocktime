@@ -1,6 +1,6 @@
 from datetime import datetime as _datetime_datetime
 
-from mocktime import _time_new, _time_old
+from mocktime._time import _time_new, _time_old
 from mocktime.unsafe_magic import patch_builtin_class
 
 _datetime_now_old = _datetime_datetime.now
