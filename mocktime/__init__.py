@@ -1,3 +1,5 @@
+import warnings
+
 from mocktime._version import __version__
 
 _ = __version__
@@ -5,7 +7,7 @@ _ = __version__
 # ==========================================
 # time.time patch
 import mocktime._time as _mocktime_time
-from mocktime._time import time_update, time_add, _offset_update
+from mocktime._time import time_update, time_add, offset_update
 
 
 def configure(*, mock: bool = True, tick: bool = False):
@@ -16,13 +18,16 @@ def configure(*, mock: bool = True, tick: bool = False):
     mock: bool
         模拟时间
     tick: bool
-        时间流逝
+        时间流逝。当`tick`为`True`时，强行将`mock`改为`True`
 
     """
     _mocktime_time.is_tick = tick
     if tick:
-        _offset_update()
-        mock = True
+        offset_update()
+        # 当`tick`为`True`时，强行将`mock`改为`True`
+        if not mock:
+            mock = True
+            warnings.warn("when `tick=True`, please use `mocktime.configure(mock=True, tick=True)`")
     _mocktime_time.is_mock = mock
 
 
@@ -45,7 +50,7 @@ except ImportError:
 
 # ==========================================
 # datetime.datetime补丁一定要在最后
-from mocktime._datetime import now
+from mocktime._datetime import now, min, max
 
 # ==========================================
 # 顺序乱了可能报错如下

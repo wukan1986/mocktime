@@ -1,6 +1,6 @@
 # mocktime
 
-通过对`time.time()`和`datetime.now()`的修改，实现模拟时间功能
+通过对`time.time()`和`datetime.now()`的修改，实现模拟时间功能。可用于历史事件回测，或未来事件调试。
 
 ## 项目起源
 
@@ -15,7 +15,7 @@
 
 ## 原理
 
-1. `datetime.datetime`打补丁，使其可以修改成任意时间，这样其它模块就可以取到历史时间
+1. `time.time()`打补丁，使其可以修改成任意时间，这样其它模块就可以取到历史时间
 2. `datetime.now()`中使用了`time.time()`，替换它成历史时间
 3. 每个任务执行完后更新`time.time()`为下次任务的触发时间
 
@@ -36,7 +36,7 @@ import mocktime
 if __name__ == '__main__':
     mocktime.configure(mock=True, tick=False)
     print('真实时间:', mocktime.now())
-    print('默认模拟时间:', datetime.now())
+    print('默认模拟时间，带时区:', datetime.now())
 
     mocktime.configure(mock=False, tick=False)
     print('还原成真实时间:', datetime.now())
@@ -50,22 +50,31 @@ if __name__ == '__main__':
 
     mocktime.configure(mock=True, tick=True)
     time.sleep(5)
-    print('开启时间流逝，等5s:', datetime.now())
+    print('开启时间流逝，等5s，时间更新:', datetime.now())
     mocktime.configure(mock=True, tick=False)
     time.sleep(5)
-    print('关闭时间流逝，等5s:', datetime.now())
+    print('关闭时间流逝，等5s，时间不变:', datetime.now())
+
+    mocktime.configure(mock=True, tick=True)
+    print('开启时间流逝后再更新时间:', datetime.now())
+    mocktime.time_update(datetime(2023, 1, 2, 3, 4, 5))
+    time.sleep(5)
+    print('从新设置的时间开始流逝:', datetime.now())
+
 ```
 
 输出如下
 
 ```text
-真实时间: 2023-11-22 14:42:02.505068
-默认模拟时间: 1970-01-01 08:00:00
-还原成真实时间: 2023-11-22 14:42:02.505068
+真实时间: 2023-11-23 18:04:32.222537
+默认模拟时间，带时区: 1970-01-01 08:00:00
+还原成真实时间: 2023-11-23 18:04:32.222537
 更新模拟时间: 2023-01-02 03:04:05
 模拟时间+5.1s: 2023-01-02 03:04:10.100000
-开启时间流逝，等5s: 2023-01-02 03:04:15.103451
-关闭时间流逝，等5s: 2023-01-02 03:04:15.103451
+开启时间流逝，等5s，时间更新: 2023-01-02 03:04:15.109541
+关闭时间流逝，等5s，时间不变: 2023-01-02 03:04:15.109541
+开启时间流逝后再更新时间: 2023-01-02 03:04:15.109541
+从新设置的时间开始流逝: 2023-01-02 03:04:10.006833
 ```
 
 ## 调度任务示例
@@ -79,6 +88,18 @@ if __name__ == '__main__':
 
 1. 同样遇到需更新模拟时间问题
 2. 在循环中取`get_next_run`，然后更新时间`mocktime.time_update`
+
+## 定时任务三种运行模式
+
+1. 真实时间模式。当前真实时间开始、正常速度执行。可以不需`mocktime`参与
+   > mocktime.configure(mock=False, tick=False)
+2. 加速模拟模式。任意时间开始(历史和未来都可以)，加速执行。需`mocktime`修改时间，还需在任务循环中更新`mocktime.time_update`
+   。一般用于历史回测
+   > mocktime.configure(mock=True, tick=False)
+3. 时间流逝模式。任意时间开始(历史和未来都可以)，正常速度执行。仅需`mocktime`修改时间。一般用于任务触发测试，可免于修改操作系统时间
+   > mocktime.configure(mock=True, tick=True)
+4. 不存在的模式。时间流逝，但又不是模拟模式，不就是真实时间吗？！
+   > mocktime.configure(mock=False, tick=True) # 当tick=True时，强行mock=True
 
 ## 参考资料
 

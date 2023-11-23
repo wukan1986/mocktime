@@ -15,3 +15,8 @@ def _datetime_now_new(tz=None) -> _datetime_datetime:
 
 
 patch_builtin_class(_datetime_datetime, 'now', _datetime_now_new)
+
+# 开始时间设为1970年
+min = _datetime_datetime.fromtimestamp(0)
+# 最大时间如果是int64的最大值取timestamp()会报错，所以设了一个比较大的值
+max = _datetime_datetime(3000, 1, 1)

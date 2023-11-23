@@ -21,9 +21,11 @@ class Strategy:
         logger.info('{}, {}, {}, {}', datetime.now(), mocktime.now(), info, self.sched.state)
 
 
-def add_jobs(sched: BaseScheduler, kwargs) -> None:
+def add_jobs(sched: BaseScheduler, kwargs) -> BaseScheduler:
     strategy = Strategy(sched)
 
     sched.add_job(strategy.before_trading, 'cron', hour=9, minute=20, **kwargs)
     sched.add_job(strategy.after_trading, 'cron', hour=14, minute=55, **kwargs)
     sched.add_job(strategy.on_bar, 'cron', hour='0-23', minute='*', **kwargs, args=('test',))
+
+    return sched

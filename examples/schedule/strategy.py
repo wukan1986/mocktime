@@ -20,10 +20,13 @@ class Strategy:
         logger.info('{}, {}, {}, {}', datetime.now(), mocktime.now(), info, len(self.sched.get_jobs()))
 
 
-def add_jobs(sched: Scheduler, end_date: datetime) -> None:
+def add_jobs(sched: Scheduler, end_date: datetime) -> Scheduler:
+
     strategy = Strategy(sched)
 
     # 无法写复杂外触发条件
     sched.every().days.at('09:20').until(end_date).do(strategy.before_trading)
     sched.every().days.at('14:55').until(end_date).do(strategy.after_trading)
-    sched.every(30).minutes.until(end_date).do(strategy.on_bar, info='test')
+    sched.every(1).minutes.until(end_date).do(strategy.on_bar, info='test')
+
+    return sched

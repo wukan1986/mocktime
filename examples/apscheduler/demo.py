@@ -38,15 +38,14 @@ class BacktestBlockingScheduler(BlockingScheduler):
 
 
 if __name__ == '__main__':
-    # TODO 实盘与回测开关
-    mocktime.configure(mock=True, tick=False)
-
     # TODO 开始时间，结束时间
     start_date = datetime(2023, 1, 2, 3, 4, 5, 6000)
-    end_date = datetime(2023, 1, 3) if mocktime.is_mock() else datetime(2099, 12, 31)
-
     # 将时间改成起始时间
     mocktime.time_update(start_date)
+    # TODO 模式配置。共有三种模式，按需设置
+    mocktime.configure(mock=True, tick=False)
+
+    end_date = datetime(2023, 1, 3) if mocktime.is_mock() else mocktime.max
     logging.warning('mock time:{}, real time:{}'.format(datetime.now(), mocktime.now()))
 
     # 添加任务
@@ -55,15 +54,15 @@ if __name__ == '__main__':
         'end_date': end_date,  # TODO 回测结束时间必须加，时间到会自动退出，否则会一直运行下去
     }
 
-    if mocktime.is_mock():
+    if mocktime.is_tick():
+        scheduler = BlockingScheduler()
+    else:
         # 只能同一线程，否则因为datetime快于job会报错
         executors = {"default": DebugExecutor(), }
         scheduler = BacktestBlockingScheduler(executors=executors)
-    else:
-        scheduler = BlockingScheduler()
 
     # 可以向策略传递信息，免去使用全局变量
-    add_jobs(scheduler, kwargs)
+    scheduler = add_jobs(scheduler, kwargs)
 
     print('Press Ctrl+C to exit')
 
