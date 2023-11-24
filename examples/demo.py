@@ -5,11 +5,11 @@ import mocktime
 
 if __name__ == '__main__':
     mocktime.configure(mock=True, tick=False)
-    print('真实时间:', mocktime.now())
-    print('默认模拟时间，带时区:', datetime.now())
+    print('真实时间:', mocktime.now(), mocktime.time())
+    print('默认模拟时间，带时区:', datetime.now(), time.time())
 
     mocktime.configure(mock=False, tick=False)
-    print('还原成真实时间:', datetime.now())
+    print('还原成真实时间:', datetime.now(), time.time())
 
     mocktime.configure(mock=True, tick=False)
     mocktime.time_update(datetime(2023, 1, 2, 3, 4, 5))

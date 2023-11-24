@@ -8,6 +8,8 @@ _ = __version__
 # time.time patch
 import mocktime._time as _mocktime_time
 from mocktime._time import time_update, time_add, offset_update
+# 导出原生time()，方便用户使用
+from mocktime._time import _time_old as time
 
 
 def configure(*, mock: bool = True, tick: bool = False):
@@ -23,7 +25,7 @@ def configure(*, mock: bool = True, tick: bool = False):
     """
     _mocktime_time.is_tick = tick
     if tick:
-        offset_update()
+        offset_update(None)
         # 当`tick`为`True`时，强行将`mock`改为`True`
         if not mock:
             mock = True
@@ -42,6 +44,13 @@ def is_tick():
 
 
 # ==========================================
+# grpc中某个函数需要保持原版
+try:
+    from mocktime._grpc import *
+except ImportError:
+    pass
+
+# ==========================================
 # loguru._datetime补丁一定要在datetime补丁之前
 try:
     from mocktime._loguru import *
@@ -58,3 +67,5 @@ from mocktime._datetime import now, min, max
 #  File "site-packages\loguru\_datetime.py", line 90, in aware_now
 #     timestamp = now.timestamp()
 # OSError: [Errno 22] Invalid argument
+
+from mocktime._process import multiprocess

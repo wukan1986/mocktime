@@ -14,7 +14,12 @@ def _datetime_now_new(tz=None) -> _datetime_datetime:
     return _datetime_datetime.fromtimestamp(_time_new(), tz)
 
 
+def _datetime_utcnow_new() -> _datetime_datetime:
+    return _datetime_datetime.utcfromtimestamp(_time_new())
+
+
 patch_builtin_class(_datetime_datetime, 'now', _datetime_now_new)
+patch_builtin_class(_datetime_datetime, 'utcnow', _datetime_utcnow_new)
 
 # 开始时间设为1970年
 min = _datetime_datetime.fromtimestamp(0)
