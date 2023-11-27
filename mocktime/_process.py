@@ -51,6 +51,8 @@ def multiprocess(path: str, t: float):
 
     """
     path = pathlib.Path(path)
+    # 为防止用户误用相对路径，导致多个项目启动产生无处不在的文件
+    assert path.is_absolute(), 'path must be absolute'
 
     if path.exists():
         configure(mock=True, tick=True)
